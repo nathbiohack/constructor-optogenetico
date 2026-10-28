@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Constructor de circuitos optogenéticos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root{--ink:#0d131f;--muted:#68738b;--line:#d8deea;--blue:#353ae8;--blue2:#1558cb;--blueSoft:#edf4ff;--green:#1fa971;--greenSoft:#e7f7f0;--red:#dc5650;--redSoft:#fcebea;--gold:#a97900;--goldSoft:#fff4d1;--panel:#f8f9fc;--shadow:0 14px 38px rgba(26,44,95,.08)}
+    *{box-sizing:border-box}body{margin:0;color:var(--ink);background:#fff;font:400 16px/1.45 Nunito,system-ui,sans-serif}button,select{font:inherit}.wrap{width:min(1240px,calc(100% - 32px));margin:auto}
+    header{border-bottom:1px solid var(--line);padding:20px 0;background:#fff}.head{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}.brand small{color:var(--blue2);font-weight:900}.brand h1{font-size:clamp(1.55rem,4vw,2.25rem);line-height:1.08;margin:3px 0 0}.badge{background:var(--blueSoft);color:var(--blue2);padding:9px 13px;border-radius:9px;font-weight:900}
+    .intro{padding:25px 0 18px}.intro h2{font-size:1.35rem;margin:0}.intro p{color:var(--muted);max-width:850px;margin:7px 0 0}.lesson{display:inline-flex;gap:7px;align-items:center;margin-top:12px;background:var(--goldSoft);color:#795800;border:1px solid #e5c75c;border-radius:9px;padding:9px 12px;font-weight:800}.lesson b{color:#5c4300}
+    .card{border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);background:#fff;padding:20px;margin-bottom:18px}.card-title{display:flex;align-items:center;gap:10px;margin-bottom:15px}.num{width:31px;height:31px;display:grid;place-items:center;border-radius:50%;background:var(--blue);color:#fff;font-weight:900}.card h2{font-size:1.2rem;margin:0}.sub{color:var(--muted);margin:-7px 0 15px 41px}
+    .choose-note{display:flex;gap:10px;align-items:flex-start;margin:0 0 15px;padding:11px 13px;border-radius:11px;background:var(--blueSoft);color:#184a9b}.choose-note b{white-space:nowrap;color:#123b7e}.context-picker{display:grid;grid-template-columns:auto minmax(220px,380px) 1fr;gap:10px;align-items:center;margin-bottom:14px;padding:12px;border:1px solid var(--line);border-radius:11px;background:var(--panel)}.context-picker label{font-weight:900}.context-picker select{padding:10px;border:1.5px solid var(--line);border-radius:9px;background:#fff;font-weight:800}.context-picker small{color:var(--muted)}.circuit-scroll{overflow-x:auto;padding:5px 2px 10px}.genetic-circuit{position:relative;display:grid;grid-template-columns:240px 42px 250px 42px 190px 42px 105px;gap:6px;align-items:start;min-width:950px}.genetic-circuit:before{content:"";position:absolute;left:18px;right:22px;top:54px;height:4px;background:#17224f;border-radius:4px;z-index:0}.gpart{position:relative;z-index:1;min-width:0}.symbol{height:88px;display:grid;place-items:center}.symbol svg{display:block;width:100%;height:82px}.gpart label{display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.055em;font-weight:900;margin:3px 0 6px}.gpart select{width:100%;padding:10px;border:1.5px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);font-weight:900}.gpart small{display:block;color:var(--muted);margin-top:5px;line-height:1.25}.circuit-arrow{display:grid;place-items:center;height:88px;color:var(--blue);font-size:1.5rem;font-weight:900;position:relative;z-index:2}.fixed-part{display:grid;gap:5px;text-align:center}.fixed-part b{font-size:.9rem}.fixed-part small{font-size:.76rem}.legend{display:flex;gap:8px 18px;flex-wrap:wrap;margin-top:5px;padding-top:11px;border-top:1px solid var(--line);color:var(--muted);font-size:.84rem}.legend b{color:var(--ink)}
+    .functional{display:grid;grid-template-columns:1.15fr auto 1.05fr auto .8fr auto 1.1fr auto 1.2fr;gap:8px;align-items:center}.node{min-height:112px;border:1.5px solid var(--line);border-radius:13px;background:var(--panel);padding:12px;display:flex;flex-direction:column;justify-content:center;text-align:center}.node b{font-size:1rem}.node small{color:var(--muted);margin-top:5px;line-height:1.25}.node.pass{border-color:var(--green);background:var(--greenSoft)}.node.fail{border-color:var(--red);background:var(--redSoft)}.and{width:54px;height:54px;border-radius:50%;background:var(--blue);display:grid;place-items:center;color:#fff;font-weight:900}.flow-arrow{color:var(--blue);font-size:1.3rem;font-weight:900;text-align:center}
+    .lights{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:7px}.light{border:1.5px solid var(--line);border-radius:9px;background:#fff;color:var(--muted);padding:7px 2px;font-size:.75rem;font-weight:900;cursor:pointer}.light i{display:block;width:16px;height:16px;border-radius:50%;margin:0 auto 3px;background:var(--c)}.light[aria-pressed="true"]{border-color:var(--blue);background:var(--blueSoft);color:var(--ink)}
+    .state{font-size:1.04rem!important}.state.active{color:var(--green)}.state.inactive{color:var(--red)}.behavior.excite{border-color:var(--red);background:var(--redSoft)}.behavior.inhibit{border-color:var(--green);background:var(--greenSoft)}
+    .clarify{margin-top:14px;padding:12px 14px;border-radius:11px;background:var(--blueSoft);color:#184a9b}.clarify strong{color:#123b7e}.clarify .sep{padding:0 7px;color:var(--blue)}
+    .behavior-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:15px}.cell-scene{position:relative;min-height:260px;border:1px solid #25304a;border-radius:14px;overflow:hidden;background:radial-gradient(circle at 50% 62%,#111b30 0 30%,#080d19 31% 62%,#04070e 63%)}.beam{position:absolute;top:0;right:9%;width:135px;height:150px;clip-path:polygon(43% 0,57% 0,100% 100%,0 100%);background:linear-gradient(180deg,color-mix(in srgb,var(--beam) 78%,white),transparent);opacity:.82}.beam.off{opacity:.03}.beam-label{position:absolute;right:8%;top:13px;border:1px solid #34415f;border-radius:8px;padding:5px 8px;background:#10182a;color:#eef3ff;font-size:.8rem;font-weight:900}.cell{position:absolute;left:50%;top:62%;width:255px;height:165px;transform:translate(-50%,-50%);border:10px solid #52617d;border-radius:50%;background:rgba(16,25,43,.92);box-shadow:inset 0 0 0 5px #1e2b45;transition:.3s ease}.cell.glowing{border-color:var(--reporter);background:color-mix(in srgb,var(--reporter) 13%,#10192b);box-shadow:0 0 16px var(--reporter),0 0 42px color-mix(in srgb,var(--reporter) 72%,transparent),inset 0 0 25px color-mix(in srgb,var(--reporter) 42%,transparent)}.channel{position:absolute;left:50%;top:-23px;width:62px;height:48px;transform:translateX(-50%);display:flex;justify-content:space-between}.channel i{width:20px;height:48px;border-radius:11px;background:var(--protein)}.channel.open i:first-child{transform:rotate(-14deg) translateX(-5px)}.channel.open i:last-child{transform:rotate(14deg) translateX(5px)}.protein-label{position:absolute;left:50%;top:22px;transform:translateX(-50%);white-space:nowrap;font-weight:900;color:#ffe099}.cell-label{position:absolute;left:0;right:0;bottom:17px;text-align:center;color:#d9e2f4;font-weight:800}.reporter-label{position:absolute;left:13px;bottom:12px;color:#d9e2f4;font-size:.78rem;font-weight:800}.ion{position:absolute;left:50%;top:-58px;width:27px;height:27px;border-radius:50%;background:var(--ion);color:#fff;display:grid;place-items:center;font-size:.74rem;font-weight:900;opacity:0}.respond .ion{opacity:1;animation:flow 1.25s linear infinite}.respond .ion:nth-child(2){margin-left:-55px;animation-delay:-.42s}.respond .ion:nth-child(3){margin-left:55px;animation-delay:-.84s}@keyframes flow{0%{transform:translate(-50%,0)}85%,100%{transform:translate(-50%,120px)}}
+    .result{border:1px solid var(--line);border-radius:14px;padding:17px;background:#fff}.status{display:inline-block;border-radius:999px;padding:7px 10px;background:var(--panel);font-size:.82rem;font-weight:900}.status.excite{background:var(--redSoft);color:#b33d38}.status.inhibit{background:var(--greenSoft);color:#087c4d}.status.none{background:var(--goldSoft);color:#795800}.result h3{font-size:1.45rem;margin:13px 0 5px}.result p{color:var(--muted);margin:0}.chain{display:grid;gap:7px;margin:15px 0}.chain-row{display:grid;grid-template-columns:105px 1fr;gap:9px;align-items:center}.chain-row b{font-size:.8rem;text-transform:uppercase;color:var(--muted)}.chain-row span{border-left:4px solid var(--blue);padding:7px 9px;background:var(--blueSoft);border-radius:6px}.output-box{padding:11px;border-radius:10px;background:var(--panel)}.output-box label{font-size:.78rem;text-transform:uppercase;font-weight:900;color:var(--muted)}.output-box select{width:100%;margin:5px 0 7px;padding:9px;border:1px solid var(--line);border-radius:8px;background:#fff;font-weight:800}.output-box p{font-size:.88rem}.plot-box{margin-top:15px;padding:15px;border:1px solid var(--line);border-radius:14px;background:#fff}.plot-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}.plot-head h3{margin:0;font-size:1.05rem}.plot-head p{margin:4px 0 0;color:var(--muted);font-size:.86rem}.plot-key{display:flex;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:.8rem;font-weight:800}.plot-key i{display:inline-block;width:18px;height:4px;border-radius:4px;margin-right:5px;vertical-align:middle}.plot-key .trace-key{background:var(--blue)}.plot-key .light-key{height:12px;background:var(--light-color,#aeb6c6);opacity:.35}.plot-svg{display:block;width:100%;height:auto;margin-top:8px;background:#fbfcff;border-radius:10px}.plot-grid{stroke:#dfe4ee;stroke-width:1}.plot-axis{stroke:#69748a;stroke-width:2}.plot-trace{fill:none;stroke:var(--trace,#353ae8);stroke-width:5;stroke-linecap:round;stroke-linejoin:round}.plot-window{fill:var(--light-color,#aeb6c6);opacity:.13}.plot-text{font:700 13px Nunito,sans-serif;fill:#66718a}.plot-pulse{font:900 13px Nunito,sans-serif;fill:#0d131f}
+    .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:13px}table{width:100%;border-collapse:collapse;min-width:790px}th{background:var(--blue);color:#fff;padding:10px 9px;text-align:left;font-size:.82rem}td{padding:10px 9px;border-bottom:1px solid var(--line);font-size:.9rem}tbody tr:last-child td{border-bottom:0}tbody tr.selected td{background:var(--blueSoft);font-weight:800}.yes{color:#087c4d;font-weight:900}.no{color:#ad3c37;font-weight:900}.tag{display:inline-block;border-radius:999px;padding:4px 8px;font-size:.76rem;font-weight:900}.tag.excite{background:var(--redSoft);color:#ad3c37}.tag.inhibit{background:var(--greenSoft);color:#087c4d}.tag.basal{background:#f1f3f7;color:#596276}.footnote{color:var(--muted);font-size:.82rem;margin:10px 0 0}
+    footer{border-top:1px solid var(--line);padding:17px 0 26px;color:var(--muted);font-size:.82rem}
+    select:focus-visible,button:focus-visible{outline:3px solid rgba(53,58,232,.23);outline-offset:2px}
+    @media(max-width:1040px){.functional{grid-template-columns:1fr auto 1fr}.functional .actionNode,.functional .behavior,.functional .afterAnd{margin-top:4px}.behavior-grid{grid-template-columns:1fr}}
+    @media(max-width:680px){.wrap{width:min(100% - 20px,1240px)}.functional{grid-template-columns:1fr}.flow-arrow{transform:rotate(90deg)}.and{margin:auto}.lights{grid-template-columns:repeat(5,minmax(48px,1fr))}.sub{margin-left:0}.clarify .sep{display:block;height:4px;color:transparent}.cell{width:225px}.card{padding:15px}.choose-note{display:block}.choose-note b{display:block;margin-bottom:4px}.context-picker{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <header><div class="wrap head"><div class="brand"><small>KipuBecas · Hackeando el Nobel</small><h1>Constructor de circuitos optogenéticos</h1></div><div class="badge">Cambia una pieza y observa</div></div></header>
+  <main class="wrap">
+    <section class="intro"><h2>La célula es el contexto; el promotor es una pieza del circuito</h2><p>Puedes combinarlos independientemente. Si el promotor funciona en la célula elegida, se fabrican la opsina y el reportero. Si no funciona, no habrá expresión ni fluorescencia.</p><div class="lesson"><b>Ejemplo:</b> cardiomiocito + hSyn → no expresión · cardiomiocito + cTnT → expresión</div></section>
+
+    <section class="card">
+      <div class="card-title"><span class="num">1</span><h2>Circuito genético en una línea</h2></div>
+      <div class="choose-note"><b>Ahora son independientes.</b><span>Primero eliges la célula donde introduces el circuito. Después construyes la línea con <strong>promotor + proteína + reportero</strong>.</span></div>
+      <div class="context-picker"><label for="cell">Célula donde colocas el circuito</label><select id="cell"><option value="neuron">Neurona</option><option value="excitatory">Neurona excitadora</option><option value="cardio">Cardiomiocito</option><option value="generic">Otra célula de mamífero</option></select><small id="cellHelp"></small></div>
+      <div class="circuit-scroll" aria-label="Circuito genético lineal editable">
+        <div class="genetic-circuit">
+          <div class="gpart">
+            <div class="symbol"><svg viewBox="0 0 240 82" role="img" aria-label="Símbolo de promotor"><line x1="8" y1="55" x2="232" y2="55" stroke="#17224f" stroke-width="4"/><path d="M72 55 V20 H154" fill="none" stroke="#1fa971" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M154 20 L136 9 V31 Z" fill="#1fa971"/></svg></div>
+            <label for="promoter">1 · Promotor — ¿dónde se expresa?</label><select id="promoter"><option value="hsyn">hSyn · neuronal</option><option value="camk">CaMKIIα · neuronas excitadoras</option><option value="ctnt">cTnT · cardiomiocitos</option><option value="cmv">CMV · expresión amplia</option></select><small id="promoterHelp"></small>
+          </div>
+          <div class="circuit-arrow">→</div>
+          <div class="gpart">
+            <div class="symbol"><svg viewBox="0 0 250 82" role="img" aria-label="Símbolo de secuencia codificante"><line x1="6" y1="55" x2="244" y2="55" stroke="#17224f" stroke-width="4"/><polygon points="27,34 187,34 222,55 187,76 27,76" fill="#fff4d1" stroke="#b88600" stroke-width="4"/><text x="118" y="61" text-anchor="middle" font-family="Nunito,sans-serif" font-size="15" font-weight="900" fill="#765500">GEN / CDS</text></svg></div>
+            <label for="protein">2 · Opsina — luz que la activa → efecto celular</label><select id="protein"><option value="chr2">ChR2 · activada por azul → excita la célula</option><option value="chrimson">ChrimsonR · activada por rojo → excita la célula</option><option value="gtacr">GtACR1 · activada por verde → inhibe la célula</option><option value="nphr">eNpHR3.0 · activada por ámbar → inhibe la célula</option></select><small id="proteinHelp"></small>
+          </div>
+          <div class="circuit-arrow">→</div>
+          <div class="gpart">
+            <div class="symbol"><svg viewBox="0 0 190 82" role="img" aria-label="Símbolo de gen reportero"><line x1="4" y1="55" x2="186" y2="55" stroke="#17224f" stroke-width="4"/><polygon id="reporterSymbol" points="14,37 128,37 162,55 128,73 14,73" fill="#ff4b4b" stroke="#3f72dc" stroke-width="4"/><text id="reporterSymbolText" x="86" y="61" text-anchor="middle" font-family="Nunito,sans-serif" font-size="14" font-weight="900" fill="#ffffff">mCherry</text></svg></div><label for="reporter">3 · Reportero — color visible</label><select id="reporter"><option value="egfp">eGFP · verde</option><option value="eyfp">EYFP · amarillo</option><option value="mcherry" selected>mCherry · rojo</option><option value="bfp">mTagBFP2 · azul</option><option value="none">Sin reportero</option></select><small id="reporterHelp">Permite observar si el circuito se expresa.</small>
+          </div>
+          <div class="circuit-arrow">→</div>
+          <div class="gpart fixed-part">
+            <div class="symbol"><svg viewBox="0 0 105 82" role="img" aria-label="Símbolo de terminador"><line x1="4" y1="55" x2="101" y2="55" stroke="#17224f" stroke-width="4"/><line x1="54" y1="55" x2="54" y2="19" stroke="#66718a" stroke-width="6"/><line x1="31" y1="19" x2="77" y2="19" stroke="#66718a" stroke-width="6"/></svg></div><b>pA</b><small>Final de la instrucción.</small>
+          </div>
+        </div>
+      </div>
+      <div class="legend"><span><b>Célula:</b> contexto, no forma parte de la línea genética</span><span><b>Promotor:</b> interruptor de expresión</span><span><b>CDS:</b> gen que codifica la proteína</span><span><b>Reportero:</b> color que muestra expresión</span><span><b>pA:</b> terminación</span></div>
+    </section>
+
+    <section class="card">
+      <div class="card-title"><span class="num">2</span><h2>Circuito funcional</h2></div>
+      <p class="sub">Sigue la señal de izquierda a derecha.</p>
+      <div class="functional">
+        <div class="node" id="expressionNode"><b id="expressionTitle"></b><small id="expressionText"></small></div>
+        <div class="flow-arrow">＋</div>
+        <div class="node" id="lightNode"><b>Luz de entrada</b><div class="lights" role="group" aria-label="Luz aplicada"><button class="light" data-light="off" style="--c:#aeb6c6" aria-pressed="false"><i></i>Sin luz</button><button class="light" data-light="blue" style="--c:#2e79f7" aria-pressed="true"><i></i>Azul</button><button class="light" data-light="green" style="--c:#26ad69" aria-pressed="false"><i></i>Verde</button><button class="light" data-light="red" style="--c:#e05252" aria-pressed="false"><i></i>Roja</button><button class="light" data-light="amber" style="--c:#e8a529" aria-pressed="false"><i></i>Ámbar</button></div></div>
+        <div class="flow-arrow afterAnd">→</div>
+        <div class="and">AND</div>
+        <div class="flow-arrow">→</div>
+        <div class="node actionNode" id="proteinState"><b class="state" id="proteinStateTitle"></b><small id="proteinStateText"></small></div>
+        <div class="flow-arrow">→</div>
+        <div class="node behavior" id="behaviorNode"><b id="behaviorTitle"></b><small id="behaviorText"></small></div>
+      </div>
+      <div class="clarify" id="clarify"></div>
+    </section>
+
+    <section class="card">
+      <div class="card-title"><span class="num">3</span><h2>Comportamiento del diseño</h2></div>
+      <div class="behavior-grid">
+        <div class="cell-scene" id="scene"><div class="beam" id="beam"></div><div class="beam-label" id="beamLabel"></div><div class="reporter-label" id="reporterLabel"></div><div class="cell" id="cellDrawing"><div class="channel" id="channel"><i></i><i></i></div><div class="protein-label" id="proteinLabel"></div><div><span class="ion"></span><span class="ion"></span><span class="ion"></span></div><div class="cell-label" id="cellLabel"></div></div></div>
+        <div class="result"><span class="status" id="status"></span><h3 id="resultTitle"></h3><p id="resultText"></p><div class="chain"><div class="chain-row"><b>Luz</b><span id="chainLight"></span></div><div class="chain-row"><b>Proteína</b><span id="chainProtein"></span></div><div class="chain-row"><b>Célula</b><span id="chainCell"></span></div></div><div class="output-box"><label for="output">Salida que quieres observar</label><select id="output"><option value="voltage">Actividad eléctrica</option><option value="calcium">Señal de calcio</option><option value="contraction">Movimiento o contracción</option><option value="expression">Fluorescencia del reportero</option></select><p id="outputText"></p></div></div>
+      </div>
+      <div class="plot-box">
+        <div class="plot-head"><div><h3>Gráfica conceptual de la salida</h3><p id="plotDescription"></p></div><div class="plot-key" id="plotKey"><span><i class="trace-key"></i>salida</span><span><i class="light-key"></i>periodo de luz</span></div></div>
+        <svg class="plot-svg" id="outputPlot" viewBox="0 0 820 280" role="img" aria-label="Gráfica conceptual de la salida en el tiempo">
+          <rect id="lightWindow" class="plot-window" x="320" y="25" width="250" height="205" rx="5"/>
+          <g class="plot-grid"><line x1="70" y1="55" x2="780" y2="55"/><line x1="70" y1="100" x2="780" y2="100"/><line x1="70" y1="145" x2="780" y2="145"/><line x1="70" y1="190" x2="780" y2="190"/></g>
+          <line class="plot-axis" x1="70" y1="25" x2="70" y2="230"/><line class="plot-axis" x1="70" y1="230" x2="780" y2="230"/>
+          <path id="plotTrace" class="plot-trace" d=""/>
+          <text id="plotYLabel" class="plot-text" transform="translate(20 170) rotate(-90)">Salida relativa</text><text class="plot-text" x="390" y="265">Tiempo →</text><text id="lightWindowLabel" class="plot-pulse" x="360" y="46">Luz</text>
+        </svg>
+        <p class="footnote">Trazo educativo relativo: muestra la dirección esperada del cambio, no valores ni tiempos experimentales reales.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-title"><span class="num">4</span><h2>Comportamiento esperado al cambiar solo la luz</h2></div>
+      <p class="sub">La fila azul corresponde a la luz que seleccionaste arriba.</p>
+      <div class="table-wrap"><table><thead><tr><th>Luz aplicada</th><th>¿Se expresa?</th><th>¿Luz compatible?</th><th>Estado de la proteína</th><th>Efecto en la célula</th><th>Lectura esperada</th></tr></thead><tbody id="behaviorTable"></tbody></table></div>
+      <p class="footnote">“Proteína activada” no significa necesariamente “célula activada”. Una proteína inhibitoria activa produce inhibición celular.</p>
+    </section>
+  </main>
+  <footer><div class="wrap">Modelo educativo conceptual. No incluye secuencias, dosis ni parámetros de laboratorio.</div></footer>
+
+  <script>
+  (()=>{
+    const cells={neuron:{name:'neurona',desc:'Contexto celular neuronal.'},excitatory:{name:'neurona excitadora',desc:'Subtipo neuronal excitador.'},cardio:{name:'cardiomiocito',desc:'Célula muscular cardíaca.'},generic:{name:'célula de mamífero',desc:'Contexto celular general.'}};
+    const promoters={hsyn:{name:'hSyn',targets:['neuron','excitatory'],desc:'Promotor neuronal.'},camk:{name:'CaMKIIα',targets:['excitatory'],desc:'Promotor más selectivo para neuronas excitadoras.'},ctnt:{name:'cTnT',targets:['cardio'],desc:'Promotor asociado a cardiomiocitos.'},cmv:{name:'CMV',targets:['neuron','excitatory','cardio','generic'],desc:'Promotor de expresión amplia y poca especificidad celular.'}};
+    const proteins={chr2:{name:'ChR2',light:'blue',effect:'excite',ion:'Na⁺',color:'#d98a18',desc:'La luz azul abre ChR2; el canal abierto excita la célula.',action:'deja entrar cationes'},chrimson:{name:'ChrimsonR',light:'red',effect:'excite',ion:'Na⁺',color:'#d85a42',desc:'La luz roja abre ChrimsonR; el canal abierto excita la célula.',action:'deja entrar cationes'},gtacr:{name:'GtACR1',light:'green',effect:'inhibit',ion:'Cl⁻',color:'#1ca57c',desc:'La luz verde abre GtACR1; el canal abierto inhibe la célula.',action:'deja pasar cloruro'},nphr:{name:'eNpHR3.0',light:'amber',effect:'inhibit',ion:'Cl⁻',color:'#9b59c5',desc:'La luz ámbar activa eNpHR3.0; la bomba activa inhibe la célula.',action:'bombea cloruro hacia la célula'}};
+    const reporters={egfp:{name:'eGFP',label:'verde',color:'#45ff79',ink:'#06240f'},eyfp:{name:'EYFP',label:'amarillo',color:'#fff04f',ink:'#332d00'},mcherry:{name:'mCherry',label:'rojo',color:'#ff4b63',ink:'#ffffff'},bfp:{name:'mTagBFP2',label:'azul',color:'#4f7fff',ink:'#ffffff'},none:{name:'Sin reportero',label:'sin brillo',color:'#52617d',ink:'#ffffff'}};
+    const lights={off:{name:'sin luz',nm:'—',color:'#aeb6c6'},blue:{name:'azul',nm:'≈470 nm',color:'#2e79f7'},green:{name:'verde',nm:'≈515 nm',color:'#26ad69'},red:{name:'roja',nm:'≈630 nm',color:'#e05252'},amber:{name:'ámbar',nm:'≈590 nm',color:'#e8a529'}};
+    const state={cell:'neuron',promoter:'hsyn',protein:'chr2',reporter:'mcherry',light:'blue',output:'voltage'};
+    const $=id=>document.getElementById(id);
+    const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+    function readout(effect,E){const r=reporters[state.reporter];if(state.output==='expression'){if(!E.expressed)return 'No hay fluorescencia: el promotor no funciona en esta célula.';if(state.reporter==='none')return 'No elegiste un reportero, por lo que la expresión no tendrá un color visible.';return `${r.name} produce fluorescencia ${r.label}. Esto confirma expresión, no actividad de la opsina.`}if(!E.expressed)return 'No hay respuesta: la opsina no se produce en esta célula.';if(!E.active)return 'La lectura permanece cerca del nivel basal.';if(state.output==='voltage')return effect==='excite'?'La membrana tiende a despolarizarse.':'La excitabilidad de la membrana disminuye.';if(state.output==='calcium')return effect==='excite'?'La señal de calcio puede aumentar.':'La señal de calcio puede disminuir o permanecer baja.';return effect==='excite'?'El movimiento podría aumentar si el sistema está acoplado.':'El movimiento podría disminuir si el sistema está acoplado.'}
+    function evaluate(lightKey){const p=promoters[state.promoter],a=proteins[state.protein],expressed=p.targets.includes(state.cell),match=lightKey!=='off'&&a.light===lightKey,active=expressed&&match;return{expressed,match,active,effect:!expressed?'Sin expresión':active?(a.effect==='excite'?'Activada':'Inhibida'):'Basal'}}
+    function drawPlot(a,r,l,E){
+      const meta={voltage:['Actividad eléctrica relativa','Cambio esperado en la actividad eléctrica durante la iluminación.'],calcium:['Señal de calcio relativa','Cambio conceptual de la señal de calcio durante la iluminación.'],contraction:['Contracción relativa','Cambio conceptual de la amplitud de contracción o movimiento.'],expression:['Fluorescencia relativa','La fluorescencia indica expresión y no depende de este pulso de luz optogenética.']}[state.output];
+      const env=t=>t<35?0:t<43?(t-35)/8:t<68?1:t<82?(82-t)/14:0;
+      const points=[];
+      for(let t=0;t<=100;t+=2){
+        let v=.5;
+        if(state.output==='expression')v=E.expressed&&state.reporter!=='none'?.84:.12;
+        else if(state.output==='contraction'){
+          const baseAmp=.11,activeAmp=E.active?(a.effect==='excite'?.27:.025):baseAmp,amp=baseAmp+(activeAmp-baseAmp)*env(t);
+          v=.5+Math.sin(t*.52)*amp;
+        }else{
+          const delta=!E.active?0:state.output==='calcium'?(a.effect==='excite'?.38:-.17):(a.effect==='excite'?.3:-.3);
+          v=.5+delta*env(t);
+        }
+        v=Math.max(.06,Math.min(.94,v));
+        const x=70+(t/100)*710,y=230-v*190;points.push(`${x.toFixed(1)},${y.toFixed(1)}`);
+      }
+      const traceColor=state.output==='expression'?(state.reporter==='none'?'#7b8498':r.color):E.active?(a.effect==='excite'?'#dc5650':'#1fa971'):'#353ae8';
+      $('plotTrace').setAttribute('d','M '+points.join(' L '));$('plotTrace').style.setProperty('--trace',traceColor);
+      $('outputPlot').style.setProperty('--light-color',l.color);$('plotKey').style.setProperty('--light-color',l.color);
+      $('plotYLabel').textContent=meta[0];$('plotDescription').textContent=meta[1];$('lightWindowLabel').textContent=state.light==='off'?'Sin luz':`Luz ${l.name}`;
+      $('outputPlot').setAttribute('aria-label',`${meta[0]} a lo largo del tiempo. ${readout(a.effect,E)}`);
+    }
+    function render(){
+      const c=cells[state.cell],p=promoters[state.promoter],a=proteins[state.protein],r=reporters[state.reporter],l=lights[state.light],E=evaluate(state.light);
+      $('cellHelp').textContent=`${c.desc} La célula es el contexto, no una pieza de la línea genética.`;$('promoterHelp').textContent=p.desc;$('proteinHelp').textContent=a.desc;$('reporterHelp').textContent=state.reporter==='none'?'No habrá color fluorescente.':`${r.name} hará visible la expresión con brillo ${r.label}.`;
+      $('expressionNode').className='node '+(E.expressed?'pass':'fail');
+      $('expressionTitle').textContent=`${p.name} ${E.expressed?'activo':'inactivo'} en ${c.name}`;
+      $('expressionText').textContent=E.expressed?'Se producen la opsina y el reportero.':'No se producen la opsina ni el reportero.';
+      $('lightNode').className='node '+(E.match?'pass':'fail');
+      $('proteinState').className='node actionNode '+(E.active?'pass':'fail');
+      $('proteinStateTitle').className='state '+(E.active?'active':'inactive');
+      $('proteinStateTitle').textContent=!E.expressed?`${a.name} no producida`:E.active?`${a.name} activada`:`${a.name} inactiva`;
+      $('proteinStateText').textContent=!E.expressed?'El promotor no funciona en esta célula.':E.active?`${cap(l.name)} es su color compatible.`:`Necesita luz ${lights[a.light].name}.`;
+      $('behaviorNode').className='node behavior '+(E.active?a.effect:'');
+      $('behaviorTitle').textContent=!E.expressed?'Sin expresión':E.active?(a.effect==='excite'?'Célula activada':'Célula inhibida'):'Actividad basal';
+      $('behaviorText').textContent=!E.expressed?'El circuito no funciona en este contexto celular.':E.active?(a.effect==='excite'?'Aumenta la excitabilidad.':'Disminuye la excitabilidad.'):'La proteína no cambia la actividad.';
+      $('clarify').innerHTML=!E.expressed?`La <strong>${c.name}</strong> es el contexto. El promotor <strong>${p.name}</strong> no está activo allí, por eso no se producen ${a.name} ni ${r.name}.`:E.active&&a.effect==='inhibit'?`<strong>${cap(l.name)} activa ${a.name}</strong><span class="sep">→</span>${a.name}, una vez activa, <strong>inhibe la célula</strong>. La proteína se activa, pero la actividad celular baja.`:E.active?`<strong>${cap(l.name)} activa ${a.name}</strong><span class="sep">→</span>${a.name}, una vez activa, <strong>excita la célula</strong>.`:`El promotor <strong>${p.name}</strong> sí produce ${a.name}, pero la luz <strong>${l.name}</strong> no la activa.`;
+      document.querySelectorAll('.light').forEach(b=>b.setAttribute('aria-pressed',b.dataset.light===state.light?'true':'false'));
+
+      $('reporterSymbol').setAttribute('fill',r.color);$('reporterSymbolText').setAttribute('fill',r.ink);$('reporterSymbolText').textContent=state.reporter==='none'?'—':r.name;
+      $('scene').style.setProperty('--beam',l.color);$('scene').style.setProperty('--protein',a.color);$('scene').style.setProperty('--ion',a.effect==='excite'?'#dc5650':'#1fa971');$('scene').style.setProperty('--reporter',r.color);
+      $('beam').className='beam '+(state.light==='off'?'off':'');$('beamLabel').textContent=`${cap(l.name)} ${l.nm}`;
+      $('channel').className='channel '+(E.active?'open':'');$('cellDrawing').className='cell '+(E.active?'respond ':'')+(E.expressed&&state.reporter!=='none'?'glowing':'');
+      $('proteinLabel').textContent=E.expressed?a.name:`sin ${a.name}`;$('cellLabel').textContent=c.name;$('reporterLabel').textContent=E.expressed&&state.reporter!=='none'?`${r.name}: brillo ${r.label}`:'Sin fluorescencia';document.querySelectorAll('.ion').forEach(x=>x.textContent=a.ion);
+      const result=!E.expressed?'Circuito no expresado':E.active?(a.effect==='excite'?'Activación celular':'Inhibición celular'):'Sin cambio celular';
+      $('status').className='status '+(E.active?a.effect:'none');$('status').textContent=result;$('resultTitle').textContent=result;
+      $('resultText').textContent=!E.expressed?`${p.name} no funciona en ${c.name}; cambia la célula o el promotor.`:E.active?`${cap(l.name)} activa ${a.name}. ${a.name} ${a.action} y por eso la célula queda ${a.effect==='excite'?'más excitable':'menos excitable'}.`:`La luz ${l.name} no activa ${a.name}; se necesita luz ${lights[a.light].name}.`;
+      $('chainLight').textContent=`Luz ${l.name}: ${E.match?'compatible':'no compatible'}`;$('chainProtein').textContent=!E.expressed?`${a.name}: no se produce`:`${a.name}: ${E.active?'activada':'inactiva'}`;$('chainCell').textContent=!E.expressed?'sin respuesta':E.active?(a.effect==='excite'?'actividad aumenta':'actividad disminuye'):'actividad basal';
+      $('outputText').textContent=readout(a.effect,E);
+      drawPlot(a,r,l,E);
+
+      $('behaviorTable').innerHTML=Object.entries(lights).map(([key,L])=>{const e=evaluate(key),protein=!e.expressed?'No se produce':e.active?'Activada':'Inactiva',cell=!e.expressed?'Sin expresión':e.active?(a.effect==='excite'?'Activada':'Inhibida'):'Basal',tag=e.active?a.effect:'basal';return`<tr class="${key===state.light?'selected':''}"><td><b>${cap(L.name)}</b> ${L.nm}</td><td class="${e.expressed?'yes':'no'}">${e.expressed?'Sí':'No'}</td><td class="${e.match?'yes':'no'}">${e.match?'Sí':'No'}</td><td>${a.name}: ${protein.toLowerCase()}</td><td><span class="tag ${tag}">${cell}</span></td><td>${readout(a.effect,e)}</td></tr>`}).join('');
+    }
+    $('cell').addEventListener('change',e=>{state.cell=e.target.value;render()});$('promoter').addEventListener('change',e=>{state.promoter=e.target.value;render()});$('protein').addEventListener('change',e=>{state.protein=e.target.value;render()});$('reporter').addEventListener('change',e=>{state.reporter=e.target.value;render()});$('output').addEventListener('change',e=>{state.output=e.target.value;render()});document.querySelectorAll('.light').forEach(b=>b.addEventListener('click',()=>{state.light=b.dataset.light;render()}));render();
+  })();
+  </script>
+</body>
+</html>
